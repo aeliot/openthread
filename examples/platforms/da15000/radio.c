@@ -279,18 +279,16 @@ ThreadError otPlatRadioSleep(otInstance *aInstance)
     ThreadError error = kThreadError_Busy;
     (void)aInstance;
 
-
     if (s_state == kStateReceive && sleep_init_delay == 0)
     {
         sleep_init_delay = otPlatAlarmGetNow();
-        return kThreadError_None; //error;
+	error = kThreadError_None;
     }
     else if ((otPlatAlarmGetNow() - sleep_init_delay) < 3000)
     {
-        return kThreadError_None;    //error;
+	error = kThreadError_None;
     }
-
-    if (s_state == kStateSleep || s_state == kStateReceive)
+    else if (s_state == kStateSleep || s_state == kStateReceive)
     {
         error = kThreadError_None;
         SED = true;
