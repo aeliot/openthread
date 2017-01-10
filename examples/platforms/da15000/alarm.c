@@ -40,7 +40,7 @@
 
 static bool s_is_running = false;
 static uint32_t s_alarm = 0;
-static uint32_t s_counter;
+static uint32_t s_counter = 0;
 volatile bool s_alarm_fired = false;
 
 static void timer0_interrupt_cb(void)
