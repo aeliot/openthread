@@ -342,7 +342,7 @@ void Mac::EnergyScanDone(int8_t aEnergyScanMaxRssi)
         // and start the next transmission task
         if (mScanChannels == 0 || mScanChannel > OT_RADIO_CHANNEL_MAX)
         {
-            RadioReceive(mChannel);
+            mRadio.Receive(GetInstance(), mChannel);
             mEnergyScanHandler(mScanContext, NULL);
             ScheduleNextTransmission();
             ExitNow();
@@ -544,17 +544,17 @@ void Mac::NextOperation(void)
     {
     case kStateActiveScan:
     case kStateEnergyScan:
-        RadioReceive(mScanChannel);
+        mRadio.Receive(GetInstance(), mScanChannel);
         break;
 
     default:
         if (mRxOnWhenIdle || mReceiveTimer.IsRunning() || otPlatRadioGetPromiscuous(GetInstance()))
         {
-            RadioReceive(mChannel);
+            mRadio.Receive(GetInstance(), mChannel);
         }
         else
         {
-            RadioSleep();
+            mRadio.Sleep(GetInstance());
         }
 
         break;
@@ -825,10 +825,9 @@ void Mac::HandleBeginTransmit(void)
         }
     }
 
-    error = RadioReceive(sendFrame.GetChannel());
+    error = mRadio.Receive(GetInstance(), sendFrame.GetChannel());
     assert(error == OT_ERROR_NONE);
-    error = RadioTransmit(&sendFrame);
-
+    error = mRadio.Transmit(GetInstance(), static_cast<otRadioFrame *>(&sendFrame));
     assert(error == OT_ERROR_NONE);
 
     if (sendFrame.GetAckRequest() && !(otPlatRadioGetCaps(GetInstance()) & OT_RADIO_CAPS_ACK_TIMEOUT))
@@ -1129,7 +1128,7 @@ void Mac::HandleMacTimer(void)
 
             if (mScanChannels == 0 || mScanChannel > OT_RADIO_CHANNEL_MAX)
             {
-                RadioReceive(mChannel);
+                mRadio.Receive(GetInstance(), mChannel);
                 otPlatRadioSetPanId(GetInstance(), mPanId);
                 mActiveScanHandler(mScanContext, NULL);
                 ScheduleNextTransmission();
@@ -1147,7 +1146,7 @@ void Mac::HandleMacTimer(void)
 
     case kStateTransmitData:
         otLogDebgMac(GetInstance(), "Ack timer fired");
-        RadioReceive(mChannel);
+        mRadio.Receive(GetInstance(), mChannel);
         mCounters.mTxTotal++;
 
         mTxFrame->GetDstAddr(addr);

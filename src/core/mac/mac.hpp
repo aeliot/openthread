@@ -756,6 +756,8 @@ private:
     bool mDelaySleep;
 #endif
     bool mWaitingForData;
+
+    Radio mRadio;
 };
 
 /**
